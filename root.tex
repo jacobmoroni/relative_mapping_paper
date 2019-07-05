@@ -78,37 +78,34 @@ Multi-Agent Autonomous Mapping of Unknown GPS-Denied Environments Using a Relati
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
-%Talk about lit review and what we will be contributing to the space
-
-Autonomously generating an internal 3D map of a building requires intelligent control of the mapping vehicle. This ranges from manually planning a flight path with simple obstacle avoidance to full-stack exploration and path planning algorithms.
-
-Generating a flight path is a nontrivial task, especially when multiple objectives are considered. For example, the algorithm may want to maximize observed coverage of the space while minimizing flight time. This becomes tedious with each new space and more difficult as the complexity of the space increases with more rooms and inter-connecting hallways. When planning paths to achieve good coverage of the area rather than obstacle avoidance or traversability, it becomes much more complex. To plan effective flight paths in more complex flight spaces, using algorithms becomes a necessity.
-
-When generating paths for the purpose of building a 3D map of the environment in a GPS-denied area such as indoors, enforcing loop closures becomes critical. Loop closures both between paths of different agents and between different segments of the same path are critical to successfully generate a usable map. Loop closures between different segments of the same path significantly reduce drift that occurs in visual odometry algorithms necessary for navigation and estimation with UAVs. Loop closures between paths of different agents ensures that the individual maps of each agent will combine into a single map.
-
-There are several different approaches to coverage path planning that have been explored over recent years. These approaches range from 2D coverage where the robot must pass over all points in its known environment, common for uses such as cleaning robots or mine searching \cite{Choset2001} to using coverage planning to generate 3D maps of outdoor terrain using viewpoint information from the robot's camera \cite{Bircher2016}. These approaches differ from the coverage planning desired for generating 3D maps of indoor environments with multiple UAVs in that they do not enforce loop closures in the generated paths.
-
-The complexity of the design space renders many simple optimization routines improper for this problem. Further, by the structure of the problem, derivatives are not available for each design variable. Thus, a derivative-free approach is required. We chose to use a genetic algorithm because they are well suited to this type of problem. As outlined by Gen et al. \cite{Gen2000}, genetic algorithms are a powerful tool for solving complex, multi-objective optimization problems such as this. Genetic algorithms have been used in coverage path planning before, Yakoubi et al. details an approach to 2D coverage planning of a cleaning robot using a multi-objective genetic algorithm \cite{Yakoubi2016} and Hameed discussed using them for 3D terrain \cite{Hameed2014}. Similarly to \cite{Choset2001}, and \cite{Bircher2016}, these approaches to not enforce loop closures and the objective is to visit all areas on the ground. Since the goal of this optimization is to get a path that when flown will generate a high fidelity 3D map of an indoor area, viewing all of the walls and obstacles is more important than visiting all areas on the ground. The genetic algorithm proposed in this paper takes these differences into consideration.
-
-We first discretized and simplified the model as much as possible to shrink the design space before applying a genetic algorithm. We found our genetic algorithm was able to effectively plan single agent and multi-agent paths in an arbitrary environment and satisfy the constraints of the problem.
-
-The remainder of the paper is organized as follows: Section \ref{setup} describes the method for simplifying the design space to create a reasonable problem for the genetic algorithm to solve. Section \ref{approach} describes the approach and architecture used to generate optimal paths for a single UAV, then the method is extended to multi-agent path planning.
-Results showing and evaluating the generated paths are presented in Section \ref{results}. Finally, conclusions are presented in Section \ref{conclusions}.
+The remainder of the paper is organized as follows: Section \ref{approach} describes framework used to map the environment and background on what previous work has made this research possible. Section \ref{planning} details the planning and control schemes used to successfully navigate the unknown area. Then method used to combine maps of multiple agents are then explained in Section \ref{merge}. Results showing and evaluating the generated maps are presented in Section \ref{results}. Finally, conclusions are presented in Section \ref{conclusions}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Technical Approach}\label{approach}
-
-
 
 \subsection{Problem Statement}
 
 The goal of
 
-\subsection{Network Diagram}
+\subsection{Sensors}
 
+Since we are operating in a GPS-denied environment, we are not able to rely on GPS measurements to give us global information about where the UAVs are located. As shown in Fig. \ref{fig:rtab_network} the sensors used by the UAV to estimate its state are an RGB-D camera, a planar laser scanner, a LiDAR pencil-beam sensor and an IMU on the onboard flight controller. \todo{how much do I talk about sensors here?}
 
+\subsection{Estimation}
 
-\subsubsection{Map Generation}
+Estimation is the most critical element in enabling autonomous flight. Without good position and attitude estimation, autonomous navigation algorithms are unable to
+
+\subsubsection{RTAB-Map}
+
+RTAB-Map is a powerful open source library that uses graph-based SLAM with appearence based loop closures to generate high-quality, dense 3D maps of environments without the use of GPS. As part of this is able to accurately estimate position within the map with little error. This has been extended to work with multi-session mapping, but currently not simultaneous multi-agent mapping. This paper proposes a method to extend the functionality of RTAB-Map to combine the maps of multiple agents into a single map in near real time.
+
+RTAB map does not estimate the attitude of a UAV with enough frequency to autonomously navigate so we used the relative navigation framework to estimate attitude and relative state.
+
+\subsubsection{RMEKF}
+the RMEKF was shown to successfully estimate the UAV's state sufficient to autonomously navigate in GPS-denied environments that had been previously mapped, but has thus far not been extended to estimation and navigation in unknown and unmapped environments, this paper proposes a method to extend the functionality to these environments.
+
+\subsection{Control}
+\subsection{Inputs/Outputs}
 
 \begin{figure*}
 \centering
@@ -117,28 +114,8 @@ The goal of
 \label{fig:rtab_network}
 \end{figure*}
 
-
-\subsubsection{Waypoints}
-
-
-\subsection{Objective Functions}
-
-
-\subsubsection{Maximize Coverage}
-
-\begin{align}
-  d_{\mathit{view},i} &= \max(\min(d_{\mathit{max}}, \min(d_{\mathit{obs},i})),d_{\mathit{min}}) \\
-  i &= 0...m \nonumber
-\end{align}
-%
-
-\begin{equation}\label{eq:coverage}%\nonumber
-    \mathcal{C} = \alpha_{\mathit{cov}} \mathcal{C}_{\mathit{open}} + \left(1-\alpha_{\mathit{cov}})\right. \mathcal{C}_{\mathit{walls}},
-\end{equation}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Planning}\label{Planning}
-
+\section{Planning}\label{planning}
 
 
 \subsection{Global Goal Following with Relative Estimation}
