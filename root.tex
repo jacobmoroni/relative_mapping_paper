@@ -4,12 +4,11 @@
 
 \documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out if you need a4paper
 
-%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf} % Use this line for a4 paper
 
-% \IEEEoverridecommandlockouts                              % This command is only needed if
-                                                          % you want to use the \thanks command
+% \IEEEoverridecommandlockouts %This command is only needed if you want to use the \thanks command
 
-\overrideIEEEmargins                                      % Needed to meet printer requirements.
+\overrideIEEEmargins  % Needed to meet printer requirements.
 
 %In case you encounter the following error:
 %Error 1010 The PDF file may be corrupt (unable to open PDF file) OR
@@ -70,7 +69,7 @@ Multi-Agent Autonomous Mapping of Unknown GPS-Denied Environments Using a Relati
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 
-\todo{When generating 3D maps with unmanned aerial vehicles (UAVs), it is important for the mapping algorithm to have good coverage of the environment. It is also important, especially when planning paths for multiple agents, to have loop closures along each flight path and with other agents. Because multirotor UAVs are limited in flight time, the flight paths must be limited in length. Generating a good flight path to map a new environment can be difficult and tedious because of the free-form nature of a flight path. To solve this problem, we propose using a genetic algorithm designed to maximize total area coverage while minimizing flight time and enforcing sufficient loop closures. The natural ability of genetic algorithms to rapidly explore a design space is advantageous when solving complex free-form problems like path planning.}
+\todo{write the abstract}
 
 \end{abstract}
 
@@ -87,13 +86,20 @@ The remainder of the paper is organized as follows: Section \ref{approach} descr
 
 The goal of
 
+\begin{figure*}
+\centering
+\includegraphics[width=1.0\linewidth]{rtab_relative_nav_network}
+\caption{The network diagram of the relative navigation framework proposed in this paper}
+\label{fig:rtab_network}
+\end{figure*}
+
 \subsection{Sensors}
 
 Since we are operating in a GPS-denied environment, we are not able to rely on GPS measurements to give us global information about where the UAVs are located. As shown in Fig. \ref{fig:rtab_network} the sensors used by the UAV to estimate its state are an RGB-D camera, a planar laser scanner, a LiDAR pencil-beam sensor and an IMU on the onboard flight controller. \todo{how much do I talk about sensors here?}
 
 \subsection{Estimation}
 
-Estimation is the most critical element in enabling autonomous flight. Without good position and attitude estimation, autonomous navigation algorithms are unable to
+Estimation is the most critical element in enabling autonomous flight. Without good position and attitude estimation, autonomous navigation algorithms do not function.
 
 \subsubsection{RTAB-Map}
 
@@ -105,36 +111,47 @@ RTAB map does not estimate the attitude of a UAV with enough frequency to autono
 the RMEKF was shown to successfully estimate the UAV's state sufficient to autonomously navigate in GPS-denied environments that had been previously mapped, but has thus far not been extended to estimation and navigation in unknown and unmapped environments, this paper proposes a method to extend the functionality to these environments.
 
 \subsection{Control}
-\subsection{Inputs/Outputs}
 
 \begin{figure*}
 \centering
-\includegraphics[width=1.0\linewidth]{rtab_relative_nav_network}
-\caption{The network diagram of the relative navigation framework proposed in this paper}
-\label{fig:rtab_network}
+\includegraphics[width=0.7\linewidth]{tf_tree_relative_rtab}
+\caption{The transformation tree of the reference frames used in estimation and control.}
+\label{fig:tr_tree}
 \end{figure*}
+
+\subsection{Inputs/Outputs}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Planning}\label{planning}
 
-
 \subsection{Global Goal Following with Relative Estimation}
 
-
-
 \subsection{Reactive Path Planning}
+
+\begin{figure*}
+\centering
+\includegraphics[width=1.0\linewidth]{adaptive_path_plan.png}
+\caption{An example of how the reactive path planner works as the UAV flies the planned path. The current extimated position is marked by the green arrow, the current goal position is marked by the red arrow, and the current path planned is marked with the blue lines. Detected obstacles with their respective safety buffers are represented with black and grey respectively.}
+\label{fig:reactive_plan}
+\end{figure*}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Map Merging}\label{merge}
 
+\begin{figure*}
+\centering
+\includegraphics[width=0.7\linewidth]{map_merger_network}
+\caption{The network diagram for the multi-agent map merging node proposed in this section.}
+\label{fig:map_merge}
+\end{figure*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and Discussion}\label{results}
-The designer is required to set many parameters for the genetic algorithm to work as derived in \cite{Parkinson2019}. The parameters we used, along with parameters specific to our implementation, are outlined in Table \ref{tab:parameters}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}\label{conclusions}
 
-We were able to successfully generate paths with sufficient coverage to generate a high-fidelity map of the environment that do not appear to meander too much for a single UAV. Future work on this project will include improving the loop closure implementation to allow the algorithm to explore the design space better without getting caught in local minima. This will enable more efficient paths to be created. We expect the need to use the paths generated with a lower level path planner that can dynamically change waypoints according to obstacles and other unmapped disparities. Finally we plan to test the paths generated both in high fidelity simulation as well as in hardware.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
