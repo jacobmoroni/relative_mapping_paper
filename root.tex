@@ -139,23 +139,31 @@ After receiving the current set of waypoints, the waypoint manager selects the a
 
 \subsubsection{Position Controller}
 
-The position controller controls on the error between the current estimated position of the UAV and the next waypoint. The goal of the position controller is to drive the error to zero. Since it operates in the error space of the the UAV rather than the state space, sudden shifts in the UAVs position estimate caused by loop closures have minimal effect on the controller and it is able to continue controlling the error to zero. The output of the position controller is a velocity command for the UAV.
+The position controller uses the error between the current estimated position of the UAV and the next waypoint. The goal of the position controller is to drive the error to zero. Since it operates in the error space of the the UAV rather than the state space, sudden shifts in the UAVs position estimate caused by loop closures have minimal effect on the controller and it is able to continue controlling the error to zero. The output of the position controller is a velocity command for the UAV.
 
 \subsubsection{Obstacle Avoidance}
 
-Before passing the velocity control into the attitude controller, it is filtered through an obstacle avoidance node as described in \todo{cite obstacle avoidance}, which uses the current relative estimates and obstacles detected py the planar laser scanner and using a potential fields method pushes away from obstacles and towards the commanded velocity input. The obstacle avoidance node then sends the modified velocity command to the attitude controller. 
+Before passing the velocity control into the attitude controller, it is filtered through an obstacle avoidance node as described in \todo{cite obstacle avoidance}, which uses the current relative estimates and obstacles detected py the planar laser scanner and using a potential fields method pushes away from obstacles and towards the commanded velocity input. The obstacle avoidance node then sends the modified velocity command to the attitude controller.
 
 \subsubsection{Rotor Controller}
 
+The attitude controller is a conventional PID controller that takes the velocity input commands and outputs the motor commands to the flight controller.
+
 \subsection{Inputs/Outputs}
 
-
+The input for each agent in the system is the desired goal location either from operator input or from a high level path planner. Each agent then sends the keyframe data consisting of the color and depth images and features from the images to the map merger where the maps are combined into a single node. The map merger will be further explored in Section \ref{merge}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Planning}\label{planning}
 
+The planner used in this project is an RRT planner with path smoothing and reactive path adjustments.
+
 \subsection{Global Goal Following with Relative Estimation}
 
+Following global waypoints
+
 \subsection{Reactive Path Planning}
+
+The path planner uses reactive path planning to continuously fly as the known map is updated. As seen in Fig. \ref{fig:reactive_plan}. The UAV plans a simple path to the goal which avoids the obstacles that it can see when it starts flying. After it begins flying, the obstacle map is updated and the current flight path is periodically checked for collisions with new obstacles. If collisions are found, it modifies the path to avoid the newly discovered obstacles. This process continues until the agent is able to successfully reach the goal. Since the path is updated any time an obstacle is detected in its path, no prior knowledge of the environment is required to begin flying.
 
 \begin{figure*}
 \centering
@@ -163,6 +171,10 @@ Before passing the velocity control into the attitude controller, it is filtered
 \caption{An example of how the reactive path planner works as the UAV flies the planned path. The current estimated position is marked by the green arrow, the current goal position is marked by the red arrow, and the current path planned is marked with the blue lines. Detected obstacles with their respective safety buffers are represented with black and grey respectively.}
 \label{fig:reactive_plan}
 \end{figure*}
+
+It is also able to navigate through complex maps. Since it is using RRT to plan the paths, as long there is a possible path to the goal, it will find a way to reach the goal, and in most cases, it will find a path to the goal in far less time than an exhaustive search method would. We decided to not extend the planner to use RRT* to allow it to be more random in the flight path to encourage more exploration of the map while flying paths.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Map Merging}\label{merge}
