@@ -4,6 +4,9 @@
 
 \documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out if you need a4paper
 
+% \documentclass[letterpaper, 12 pt, twoside]{report}  % Comment this line out if you need a4paper
+
+
 %\documentclass[a4paper, 10pt, conference]{ieeeconf} % Use this line for a4 paper
 
 % \IEEEoverridecommandlockouts %This command is only needed if you want to use the \thanks command
@@ -77,6 +80,8 @@ Multi-Agent Autonomous Mapping of Unknown GPS-Denied Environments Using a Relati
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
+\todo{write the rest of the introduction (mapping/slam background)}
+
 The remainder of the paper is organized as follows: Section \ref{approach} describes framework used to map the environment and background on what previous work has made this research possible. Section \ref{planning} details the planning and control schemes used to successfully navigate the unknown area. Then method used to combine maps of multiple agents are then explained in Section \ref{merge}. Results showing and evaluating the generated maps are presented in Section \ref{results}. Finally, conclusions are presented in Section \ref{conclusions}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -145,7 +150,7 @@ The position controller uses the error between the current estimated position of
 
 Before passing the velocity control into the attitude controller, it is filtered through an obstacle avoidance node as described in \todo{cite obstacle avoidance}, which uses the current relative estimates and obstacles detected py the planar laser scanner and using a potential fields method pushes away from obstacles and towards the commanded velocity input. The obstacle avoidance node then sends the modified velocity command to the attitude controller.
 
-\subsubsection{Rotor Controller}
+\subsubsection{Attitude Controller}
 
 The attitude controller is a conventional PID controller that takes the velocity input commands and outputs the motor commands to the flight controller.
 
@@ -159,7 +164,7 @@ The planner used in this project is an RRT planner with path smoothing and react
 
 \subsection{Global Goal Following with Relative Estimation}
 
-Following global waypoints
+As mentioned earlier, the estimation that is critical to keeping the UAV airborne makes no attempt to estimate the global position of the UAV, but only its relative state with respect to the last keyframe. By doing so, the global estimate of the position does not have to be continuous and is able to slide and adjust for detected loop closures without affecting the covariance of the estimator. Because there is no need to
 
 \subsection{Reactive Path Planning}
 
@@ -174,10 +179,12 @@ The path planner uses reactive path planning to continuously fly as the known ma
 
 It is also able to navigate through complex maps. Since it is using RRT to plan the paths, as long there is a possible path to the goal, it will find a way to reach the goal, and in most cases, it will find a path to the goal in far less time than an exhaustive search method would. We decided to not extend the planner to use RRT* to allow it to be more random in the flight path to encourage more exploration of the map while flying paths.
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Map Merging}\label{merge}
+
+The map merging process proposed in this paper is able to generate a combined map from multiple agents on a base station computer in near real time during while the UAVs are still simultaneously mapping the environment.
+
+To merge the maps in near real time, each time a new keyframe is initialized, the data from the keyframe consisting of an XYZRGB (color and depth) pointcloud, and the features extracted from the color image are stored in a database. The pointcloud is generated using the color and depth images from the RGB-D camera onboard and the features are generated from either SIFT/SURF or ORB using opencv. The database refered to as RGB-D Cache in Fig. \ref{fig:map_merge} is hosted on the base station computer.
 
 \begin{figure*}
 \centering
@@ -185,12 +192,35 @@ It is also able to navigate through complex maps. Since it is using RRT to plan 
 \caption{The network diagram for the multi-agent map merging node proposed in this section.}
 \label{fig:map_merge}
 \end{figure*}
+
+Once the database has been initialized the maps are periodically merged using functions from an instance of RTAB-Map running on the base station computer very similarly to how individual maps are generated for each UAV. The first step is to search for loop closures using a bag-of-words with the features in each keyframe, this process looks for both loop closures an agent has with itself and with other agents, each time a loop closure is found an edge is added to combined map graph with an estimated transformation between images. After finding all loop closures with the current dataset, the graph is optimized using the pose graph optimizer built into RTAB-Map, the optimized pose graph is then sent to the map assembler along with the XYZRGB pointcloud from each keyframe where the pointclouds are combined according to the optimized graph edges. This generates a single map with all keyframes that can be connected into a single graph. This map is then processed to remove some noise and filter out the ceiling to make the map more understandable to the operator.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and Discussion}\label{results}
 
 \subsection{Simulation}
 
+\begin{figure}
+\centering
+\includegraphics[width=1.0\linewidth]{sim_setup}
+\caption{Setup used for the simulation results}
+\label{fig:sim_setup}
+\end{figure}
+
 \subsection{Hardware}
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.9\linewidth]{lab_map.png}
+\caption{Example of hardware results of merging maps from two agents into a single map in a cluttered environment. Above the individual agent maps are examples of the detail in the pointclouds when zooming in.}
+\label{fig:lab_map}
+\end{figure*}
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.9\linewidth]{wilk3_map.png}
+\caption{Example of hardware results of merging maps from two agents into a single map in a simpler hallway environment. Above the individual agent maps are examples of the detail in the pointclouds when zooming in.}
+\label{fig:wilk3_map}
+\end{figure*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}\label{conclusions}
 
