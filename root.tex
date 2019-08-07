@@ -81,15 +81,19 @@ Multi-Agent Autonomous Mapping of Unknown GPS-Denied Environments Using a Relati
 \section{Introduction}
 
 \todo{write the rest of the introduction (mapping/slam background)}
+Mapping an environment where GPS (global positioning system) signals are degraded or entirely unavailable such as an earthquake damaged building is not a trivial task. Many common mapping approaches rely on high quality GPS data in order to patch together data to generate a map \todo{throw a citation or two here that need GPS}. Often these GPS-denied environments are inaccessible to ground robots due to difficult terrain, especially in locations like earthquake damaged buildings. This necessitates the use of UAVs (unmanned aerial vehicles) to carry out some or all of the mapping. Because of the limited flight time of UAVs, the mapping process can be streamlined by using multiple UAVs collaborating to build a map.
 
-The remainder of the paper is organized as follows: Section \ref{approach} describes framework used to map the environment and background on what previous work has made this research possible. Section \ref{planning} details the planning and control schemes used to successfully navigate the unknown area. Then method used to combine maps of multiple agents are then explained in Section \ref{merge}. Results showing and evaluating the generated maps are presented in Section \ref{results}. Finally, conclusions are presented in Section \ref{conclusions}.
+\todo{cite the ground and air paper, talk about simultaneous mapping, is this much background appropriate for a paper? }
+
+
+The remainder of the paper is organized as follows: Section \ref{approach} describes the framework used to map the environment, and background on what previous work has made this research possible. Section \ref{planning} details the planning and control schemes used to successfully navigate the unknown area. The method used to combine maps of multiple agents is then explained in Section \ref{merge}. Results showing and evaluating the generated maps are presented in Section \ref{results}. Finally, conclusions are presented in Section \ref{conclusions}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Technical Approach}\label{approach}
 
 \subsection{Problem Statement}
 
-The goal of this paper is to show how to successfully map a GPS-denied environment using multiple UAVs collaborating with each other. The framework presented assumes that a good set of high-level waypoints will be provided either by the user or a high level coverage path planner that ensure sufficient loop closures and coverage of the desired area. Rather than focus on how to plan paths that maximize loop closures and coverage for generating maps, the focus of this paper is to show that properly estimating the UAV states allows for successful GPS-denied navigation and how to extend it to multi-agent navigation and map merging. The network diagram shown in Fig. \ref{fig:rtab_network} shows the framework used in this paper to successfully generate merged maps from multiple UAVs. The sections of the diagram will be described in detail throughout the paper.
+The goal of this paper is to show how to successfully map a GPS-denied environment using multiple UAVs collaborating with each other. For map building to be successful, a flight path that produces high quality loop closures and good coverage of its environment is required. This paper does not focus on how to plan these high level paths. The framework presented in this section assumes that a high quality path will be supplied either by the user or by a high-level coverage path planner. The focus of this paper is first, to show that properly estimating UAV states allows for successful GPS-denied navigation, and secondly, how to extend streamline the mapping process by merging maps of several UAVs into a single map. A high-level network diagram is shown in Fig. \ref{fig:rtab_network} which outlines the framework used in this paper to successfully generate a single merged map from multiple UAVs in a GPS denied environment. Each section of the diagram will be described in detail throughout the paper.
 
 \begin{figure*}
 \centering
