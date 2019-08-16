@@ -9,7 +9,7 @@
 
 %\documentclass[a4paper, 10pt, conference]{ieeeconf} % Use this line for a4 paper able to be
 
-% \IEEEoverridecommandlockouts %This command is only needed if you want to use the \thanks command
+\IEEEoverridecommandlockouts %This command is only needed if you want to use the \thanks command
 
 \overrideIEEEmargins  % Needed to meet printer requirements.
 
@@ -35,33 +35,33 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{commath}
-\usepackage[bottom]{footmisc}
+\usepackage[bottom]{footmisc} %allows for footers to be used with \footnote
 
-\usepackage{xcolor}
+\usepackage{url} %These are to break up the urls in the bibliography so they dont hang over the margin
+\def\UrlBreaks{\do\/\do-}
+% \usepackage{breakurl} %doesnt seem to be needed, but I left it here just in case
+\usepackage[breaklinks]{hyperref}
+
+\usepackage{xcolor} %custom commands for annotation while drafting
 \newcommand{\todo}[1]{{\color{blue}[TODO: #1]}}
 \newcommand{\comment}[1]{{\color{red}[COMMENT: #1]}}
 \newcommand{\response}[1]{{\color{green}[RESPONSE: #1]}}
-\graphicspath{{figures/}}
 
+\graphicspath{{figures/}}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
-\title{\LARGE \bf
-Multi-Agent Autonomous Mapping of Unknown GPS-Denied Environments Using a Relative Navigation Framework}
 
-\author{Jacob M. Olson$^{1}$, Nathan Toombs, Timothy W. McLain$^{2}$% <-this % stops a space
-\footnote{Thanks to Mathieu Labbe for being responsive to answering questions on the RTAB-Map forum and helping with developing the map merging node.}% <-this % stops a space
-\footnote{$^{1}$The corresponding author can be contacted at
+\title{\LARGE \bf
+Multi-Agent Mapping and Navigation of Unknown GPS-Denied Environments Using a Relative Navigation Framework}
+
+\author{Jacob M. Olson$^{1}$, Nathan A. Toombs, Timothy W. McLain$^{2}$% <-this % stops a space
+\thanks{$^{1}$The corresponding author can be contacted at
         {\tt\small jacobmo at byu.edu}.}%
-\footnote{$^{2}$All authors are with the Department of Mechanical Engineering or Electrical and Computer Engineering,
+\thanks{$^{2}$All authors are with the Department of Mechanical Engineering,
         Brigham Young University, Provo, UT, 84602, USA.}%
-%\thanks{$^{3}$C. Peterson is with the Faculty of Electrical and Computer Engineering,
-%		Brigham Young University, Provo, UT, 84602, USA.
-%        {\tt\small cammy.peterson at byu.edu}}%
-%\thanks{$^{4}$R. W. Beard is with the Faculty of Electrical and Computer Engineering,
-%		Brigham Young University, Provo, UT, 84602, USA.
-%        {\tt\small beard at byu.edu}}%
+% \thanks{Thanks to Mathieu Labbe for being responsive to answering questions on the RTAB-Map forum and helping with developing the map merging node.}%
 }
 
 \begin{document}
@@ -77,7 +77,6 @@ Multi-Agent Autonomous Mapping of Unknown GPS-Denied Environments Using a Relati
 When generating 3D maps with unmanned aerial vehicles (UAVs) in GPS-denied environments, it is important to correctly handle path planning, estimation, and mapping techniques. Because multirotor UAVs are limited in flight time, using multiple UAVs to map an environment collaboratively can significantly improve the mapping efficiency. To solve this problem, we propose the following strategies: Use a combination of a reactive path planner with an obstacle avoidance velocity filter to handle navigation in complex environments. Estimate the relative and global states of a UAV separately with a relative navigation framework to allow for loop closures in the mapping process without causing the estimation to diverge. Use a graph based simultaneous localization and mapping (graph-SLAM) technique on multiple UAVs simultaneously and merge the maps of the UAVs in real-time. These methods allow for efficient autonomous mapping of complex GPS-denied environments.
 
 \end{abstract}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
@@ -135,7 +134,7 @@ More detail regarding the uses and implementations of these transforms will be f
 
 \subsubsection{RTAB-Map}
 
-Real-time appearence-based mapping (RTAB-Map), developed by Labbe et al. \cite{Labbe2011}\cite{Labbe2013}\cite{Labbe2019}, is a powerful open source software library. It uses graph-SLAM with appearance-based loop closures to generate high-quality, dense 3D maps using only a RGB-D camera and a planar laser scanner. When coupled with the depth-enhanced visual odometry algorithm called RGBD-Odometry which was developed in conjunction with RTAB-Map \cite{Labbe2019}, the UAVs position with respect to the map that is being built can be accurately estimated at all times. The map building algorithm uses a keyframe based approach. Unlike the visual odometry algorithm, the map building algorithm does not try to use the information from every camera frame to build the map and optimize the graph. Instead, it only uses camera information that has been saved periodically at a set rate. In our case, once every second the information from the current camera frame is sent to RTAB-Map and saved as a keyframe. Then only these keyframes are used to build the map and optimize the graph. RTAB-Map is primarily designed for use with slow moving ground robots which do not need high-rate state estimation to work. The only state estimation that is preformed by RTAB-Map is from the visual odometry which is limited by the frame rate of the camera. We found the estimation rate of RTAB-Map on our hardware to be in the 10-30 Hz range which is not sufficient on its own for autonomous navigation with a UAV. We use the state estimates from the RGBD-Odometry node as an input to the estimation for the relative framework.
+The real-time appearance-based mapping (RTAB-Map) package, developed by Labbe et al. \cite{Labbe2011}\cite{Labbe2013}\cite{Labbe2019}, is a powerful open source software library. It uses graph-SLAM with appearance-based loop closures to generate high-quality, dense 3D maps using only a RGB-D camera and a planar laser scanner. When coupled with the depth-enhanced visual odometry algorithm called RGBD-Odometry which was developed in conjunction with RTAB-Map \cite{Labbe2019}, the UAVs position with respect to the map that is being built can be accurately estimated at all times. The map building algorithm uses a keyframe based approach. Unlike the visual odometry algorithm, the map building algorithm does not try to use the information from every camera frame to build the map and optimize the graph. Instead, it only uses camera information that has been saved periodically at a set rate. In our case, once every second the information from the current camera frame is sent to RTAB-Map and saved as a keyframe. Then only these keyframes are used to build the map and optimize the graph. RTAB-Map is primarily designed for use with slow moving ground robots which do not need high-rate state estimation to work. The only state estimation that is preformed by RTAB-Map is from the visual odometry which is limited by the frame rate of the camera. We found the estimation rate of RTAB-Map on our hardware to be in the 10-30 Hz range which is not sufficient on its own for autonomous navigation with a UAV. We use the state estimates from the RGBD-Odometry node as an input to the estimation for the relative framework.
 
 Although the current functionality of RTAB-Map does allow for a single robot to combine maps from multiple sessions, it does not allow for multiple agents mapping simultaneously to combine the maps into a single one. This paper proposes a method to extend the functionality of RTAB-Map to combine the maps of multiple agents flying simultaneously into a single map in near real-time. The implementation of this method is detailed in section \ref{merge}.
 
@@ -281,7 +280,7 @@ As the RRT branches propagate, before each candidate node is added to the tree, 
 
 The map merging process we use is able to generate a combined map from multiple agents on a base station computer in near real-time while the UAVs are still mapping the environment.
 
-Fig. \ref{fig:map_merge} shows the network diagram of the process of merging the maps. To merge the maps in near real-time, each time a new keyframe is initialized, its data is stored in the RGB-D Cache database which is hosted on the base station computer. A 3D color and depth (XYZRGB) pointcloud is generated using the color and depth information from the RGB-D camera and the features are generated from either SIFT/SURF or ORB using OpenCV.
+Fig. \ref{fig:map_merge} shows the network diagram of the process of merging the maps\footnote[3]{Thanks to Mathieu Labbe for being responsive to answering questions on the RTAB-Map forum and helping with developing the map merging node.}. To merge the maps in near real-time, each time a new keyframe is initialized, its data is stored in the RGB-D Cache database which is hosted on the base station computer. A 3D color and depth (XYZRGB) pointcloud is generated using the color and depth information from the RGB-D camera and the features are generated from either SIFT/SURF or ORB using OpenCV.
 
 \begin{figure*}
 \centering
