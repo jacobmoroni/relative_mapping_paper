@@ -315,7 +315,7 @@ Flying in simulation helped validate the reactive planner and obstacle avoidance
 
 \subsection{Hardware}
 
-The extension of RTAB-Map to enable real-time map merging of multiple UAVs flying simultaneously is robust enough to handle several vehicles at the same time. We began testing with only two vehicles and were able to expand it up to four vehicles. We were able to successfully combine maps generated from multiple UAVs in near real time with manual flight. Fig. \ref{fig:wilk3_map} shows an example of a map built from a an indoor environment with with both hallways and large rooms. The generated map is sufficiently dense to show detail for a human user to interpret. This map was built from manually flying a single UAV four times and recording the data, then playing back all data simultaneously and merging the map in real time as shown in Fig. \ref{fig:map_seq}. By the end of the map merging process with this data, the combined map generation was lagging behind real-time by about one minute. There is theoretically no limit to the number of vehicles that could be added and flown simultaneously, but as more vehicles are added, the merging process lags further behind real-time and loop closure detection gets more complex.
+The extension of RTAB-Map to enable real-time map merging of multiple UAVs flying simultaneously is robust enough to handle several vehicles at the same time. We began testing with only two vehicles and were able to expand it up to four vehicles. We were able to successfully combine maps generated from multiple UAVs in near real time with manual flight. Fig. \ref{fig:wilk3_map} shows an example of a map built from a an indoor environment with with both hallways and large rooms. The generated map is sufficiently dense to show detail for a human user to interpret. This map was built from manually flying a single UAV four times and recording the data, then playing back all data simultaneously and merging the map in real time as shown in Fig. \ref{fig:map_seq}. By the end of the map merging process with this data, the combined map generation was lagging behind real-time by about one minute. There is theoretically no limit to the number of vehicles that could be added and flown simultaneously, but as more vehicles are added, the merging process lags further behind real time and loop closure detection gets more complex.
 
 \begin{figure*}
 \centering
@@ -338,7 +338,7 @@ Using UAVs to generate dense 3D maps of GPS-denied environments requires a caref
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Acknowledgements}
-Thanks to Mathieu Labbe for being responsive to answering questions on the RTAB-Map forum and helping with developing the map merging node. This research was funded by The National Institute of Standards and Technology (NIST) under award number \todo{figure this out}
+Thanks to Mathieu Labbe for being responsive to answering questions on the RTAB-Map forum and helping with developing the map merging node. This research was funded by The National Institute of Standards and Technology (NIST) under award number 70NANB17H211.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bibliographystyle{IEEEtran} % We choose the "plain" reference style
