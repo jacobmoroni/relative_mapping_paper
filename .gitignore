@@ -5,4 +5,5 @@
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+*.pdf
 figures/old_figs
